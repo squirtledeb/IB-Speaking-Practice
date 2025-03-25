@@ -25,9 +25,15 @@ THEMES = {
     }
 }
 
+LANG_SHORTCODES = {
+    "spanish": "es-ES",
+    "german": "de-DE",
+}
+
 # Global variables for thread-safe operations
 transcript_queue = Queue()
 mic_lock = Lock()
+state_lock = Lock()
 recording_thread = None
 
 def init_session_state():
@@ -41,7 +47,8 @@ def init_session_state():
         'saved_files': [],
         'visualizer': None,
         'last_audio_time': 0,
-        'exam_images': None  # Store the randomly selected exam images
+        'exam_images': None,  # Store the randomly selected exam images
+
     }
     for key, value in required_state.items():
         if key not in st.session_state:
@@ -54,20 +61,19 @@ def recognition_thread():
             with sr.Microphone() as source:
                 print("Microphone initialized - Speak now!")
                 recognizer.adjust_for_ambient_noise(source, duration=1)
-                
+                st.session_state.is_recording = True
                 while st.session_state.is_recording:
                     try:
-                        audio = recognizer.listen(source, timeout=1, phrase_time_limit=5)
-                        text = recognizer.recognize_google(audio, 
-                            language="es-ES" if st.session_state.language == "Spanish" else "de-DE")
+                        print("Starting to listen")
+                        audio = recognizer.listen(source, timeout=15, phrase_time_limit=15)
+                        print("Audio captured, transcribing")
+                        # text = recognizer.recognize_google(audio, language=LANG_SHORTCODES[st.session_state.language.lower()])
+                        text = recognizer.recognize_google(audio, language="de-DE")
                         print(f"Recognized: {text}")
                         transcript_queue.put(text)
                         st.session_state.last_audio_time = time.time()
-                    except sr.WaitTimeoutError:
-                        continue
-                    except sr.UnknownValueError:
-                        transcript_queue.put("(Listening...)")
                     except Exception as e:
+                        print(str(e))
                         transcript_queue.put(f"[Error: {str(e)}]")
                         break
         except Exception as e:
