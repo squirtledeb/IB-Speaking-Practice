@@ -4,9 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IB Speaking Practice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/res/global.css">
 </head>
 <body>
-    <h1>IB Speaking Practice</h1>
+    <div class="container">
+        <div class="logo">IB SPEAKING</div>
+        <p class="tagline">Master your IB speaking skills - One word at a time</p>
+        <p class="subtitle">Select your language to begin practice</p>
+        
+        <div class="form-group">
+            <div class="select-wrapper">
+                <select id="language-select">
+                    <option value="" disabled selected>Choose language</option>
+                    <option value="spanishabi">Spanish ab initio</option>
+                    <option value="frenchabi">French ab initio</option>
+                    <option value="germanabi">German ab initio</option>
+                </select>
+            </div>
+        </div>
+        
+        <button class="btn" id="start-practice">Start Practice</button>
+    </div>
+
+    <script>
+        document.getElementById('start-practice').addEventListener('click', () =>{
+            const language = document.getElementById('language-select').value;
+            if (!language) {
+                alert('Please select a language to continue');
+                return;
+            }
+            window.location.href = `/setup?lang=${language}`;
+        });
+    </script>
 </body>
 </html>
